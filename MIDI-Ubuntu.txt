@@ -1,0 +1,18 @@
+https://sndrtj.eu/2019/10/19/Using-a-USB-midi-keyboard-on-Ubuntu/
+List detected MIDI devices:
+
+$ aconnect -i
+
+Output is for e.g.:
+
+client 0: 'System' [type=kernel]
+    0 'Timer           '
+    1 'Announce        '
+client 14: 'Midi Through' [type=kernel]
+    0 'Midi Through Port-0'
+client 20: 'Keystation Mini 32' [type=kernel,card=1]
+    0 'Keystation Mini 32 MIDI 1'
+
+Listen to MIDI data on port:
+
+aseqdump -p <client_id_of_the_device>
