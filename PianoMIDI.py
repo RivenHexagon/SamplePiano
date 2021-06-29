@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import threading
 import AseqdumpParser as adp
 from playsound import playsound
 
@@ -17,18 +18,22 @@ def evalNote(_params):
     if -1 != findRes:
         print( _params[1] )
         if " note 48" == _params[1]:
-            playSound('3-2-10027.mp3')
+            startSoundThread('3-2-10027.mp3')
         elif " note 36" == _params[1]:
             sys.exit()
-        
             
-def playSound(_title):
-    playsound(_title)
+def startSoundThread(_title):
+    t1 = threading.Thread( target=playsound, args=(_title,) )
+    t1.start()
+
+
 
 
 if __name__ == "__main__":
     myParser = adp.AseqdumpParser()
     lineDump = execute(["aseqdump", "-p", "24"])
+    #t1 = threading.Thread( target=playsound, args=('3-2-10027.mp3',) )
+
     for path in lineDump:
         strip  = " ".join(path.split()) #path.replace(" ","")
         params = strip.split(",")
