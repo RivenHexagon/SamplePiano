@@ -1,4 +1,6 @@
 import subprocess
+import AseqdumpParser as adp
+from playsound import playsound
 
 def execute(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
@@ -9,9 +11,29 @@ def execute(cmd):
     if return_code:
         raise subprocess.CalledProcessError(return_code, cmd)
 
+def playCat(_params):
+    findRes = _params[0].find('Note on')
+    if -1 != findRes:
+        print( _params[1] )
+        if " note 48" == _params[1]:
+            playsound('3-2-10027.mp3')
+            
+
+    
+
 if __name__ == "__main__":
+    myParser = adp.AseqdumpParser()
     for path in execute(["aseqdump", "-p", "24"]):
-        print(path, end="")
+        strip  = " ".join(path.split()) #path.replace(" ","")
+        params = strip.split(",")
+        playCat(params)
 
+#pygame.mixer.init()
+#pygame.mixer.music.load("file.mp3")
+#pygame.mixer.music.play()
 
+#$ pip install playsound
+#from playsound import playsound
+#playsound('/path/to/a/sound/file/you/want/to/play.mp3')
 
+#Buy Raspi Pi 3A+ at segor

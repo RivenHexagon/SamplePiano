@@ -16,3 +16,7 @@ client 20: 'Keystation Mini 32' [type=kernel,card=1]
 Listen to MIDI data on port:
 
 aseqdump -p <client_id_of_the_device>
+
+#$ pip3 install playsound
+#from playsound import playsound
+#playsound('/path/to/a/sound/file/you/want/to/play.mp3')
