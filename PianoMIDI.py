@@ -23,7 +23,8 @@ def playCat(_params):
 
 if __name__ == "__main__":
     myParser = adp.AseqdumpParser()
-    for path in execute(["aseqdump", "-p", "24"]):
+    lineDump = execute(["aseqdump", "-p", "24"])
+    for path in lineDump:
         strip  = " ".join(path.split()) #path.replace(" ","")
         params = strip.split(",")
         playCat(params)
