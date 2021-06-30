@@ -26,8 +26,7 @@ def parseLine(_line):
 
         if -1 != findResults:
             note = lineSplits[1] 
-            print( note[1:] )
-            evalNote( note[1:] ) # ommits leading blank
+            evalNote( note[1:] ) # ommit leading blank
 
 
 def evalNote(_note):
@@ -35,13 +34,16 @@ def evalNote(_note):
     sampleTable = { "note 48": '3-2-10027.mp3', 
                     "note 50": 'dog-barking.wav',}
 
-    #audioFile = sampleTable[_note]
-    if "note 48" == _note:
-        makeNoise('3-2-10027.mp3')
-    elif "note 50" == _note:
-        makeNoise('dog-barking.wav')
-    elif "note 36" == _note:
+    if "note 36" == _note:
+        print(_note, "sys.exit()")
         sys.exit()
+
+    try:
+        audioFileName = sampleTable[_note]
+        print("Playing sample for", _note)
+        makeNoise( audioFileName )
+    except:
+        print("No sample for", _note)
 
 
 def makeNoise(_title):
