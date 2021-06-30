@@ -1,12 +1,13 @@
 import subprocess
 import sys
 import threading
-import AseqdumpParser as adp
+#import AseqdumpParser as adp
 from playsound import playsound
 
 def execute(_cmd):
 
-    popen = subprocess.Popen(_cmd, stdout=subprocess.PIPE, universal_newlines=True)
+    popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
+                              universal_newlines=True )
 
     for stdout_line in iter(popen.stdout.readline, ""):
         yield stdout_line 
@@ -18,7 +19,7 @@ def execute(_cmd):
         raise subprocess.CalledProcessError(return_code, _cmd)
 
 
-def parseLine(_line):
+def parseLine(_line): #TODO make paarser for those lines that gives full content
 
         blankFreeLine = " ".join( _line.split() ) # remove consecutive blanks
         lineSplits    = blankFreeLine.split( "," )
@@ -40,35 +41,31 @@ def evalNote(_note):
 
     try:
         audioFileName = sampleTable[_note]
-        print("Playing sample for", _note)
-        makeNoise( audioFileName )
+        if noSoundIsPlaying():
+            print( "Playing sample for", _note )
+            makeNoise( audioFileName )
     except:
         print("No sample for", _note)
 
 
 def makeNoise(_title):
-
-    global flag
-    if False == flag:
-        flag = True
-        t1 = threading.Thread( target=startSoundThread, args=(_title,) )
+        t1 = threading.Thread( target=playsound, args=(_title,) )
         t1.start()
 
-            
-def startSoundThread(_title):
 
-    global flag
-    playsound(_title)
-    flag = False
+def noSoundIsPlaying():
+    cnt = threading.active_count()
+
+    if cnt < 2:
+        return True
+    else:
+        return False
 
 
 if __name__ == "__main__":
 
-    flag = False
-
-    myParser = adp.AseqdumpParser()
+    #myParser = adp.AseqdumpParser()
     lineDump = execute(["aseqdump", "-p", "24"])
-    #t1 = threading.Thread( target=playsound, args=('3-2-10027.mp3',) )
 
     for line in lineDump:
         parseLine( line )
@@ -83,3 +80,6 @@ if __name__ == "__main__":
 #playsound('/path/to/a/sound/file/you/want/to/play.mp3')
 
 #Buy Raspi Pi 3A+ at segor
+
+''' END '''
+
