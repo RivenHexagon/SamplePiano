@@ -4,38 +4,60 @@ import threading
 import AseqdumpParser as adp
 from playsound import playsound
 
-def execute(cmd):
-    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+def execute(_cmd):
+
+    popen = subprocess.Popen(_cmd, stdout=subprocess.PIPE, universal_newlines=True)
+
     for stdout_line in iter(popen.stdout.readline, ""):
         yield stdout_line 
+
     popen.stdout.close()
     return_code = popen.wait()
-    if return_code:
-        raise subprocess.CalledProcessError(return_code, cmd)
 
-def evalNote(_params):
-    findRes = _params[0].find('Note on')
-    if -1 != findRes:
-        print( _params[1] )
-        if " note 48" == _params[1]:
-            makeNoise('3-2-10027.mp3')
-        elif " note 36" == _params[1]:
-            sys.exit()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, _cmd)
+
+
+def parseLine(_line):
+
+        blankFreeLine = " ".join( _line.split() ) # remove consecutive blanks
+        lineSplits    = blankFreeLine.split( "," )
+        findResults   = lineSplits[0].find( 'Note on' )
+
+        if -1 != findResults:
+            note = lineSplits[1] 
+            print( note[1:] )
+            evalNote( note[1:] ) # ommits leading blank
+
+
+def evalNote(_note):
+
+    sampleTable = { "note 48": '3-2-10027.mp3', 
+                    "note 50": 'dog-barking.wav',}
+
+    #audioFile = sampleTable[_note]
+    if "note 48" == _note:
+        makeNoise('3-2-10027.mp3')
+    elif "note 50" == _note:
+        makeNoise('dog-barking.wav')
+    elif "note 36" == _note:
+        sys.exit()
+
 
 def makeNoise(_title):
+
     global flag
     if False == flag:
         flag = True
         t1 = threading.Thread( target=startSoundThread, args=(_title,) )
         t1.start()
+
             
 def startSoundThread(_title):
+
     global flag
     playsound(_title)
     flag = False
-
-
-
 
 
 if __name__ == "__main__":
@@ -46,11 +68,10 @@ if __name__ == "__main__":
     lineDump = execute(["aseqdump", "-p", "24"])
     #t1 = threading.Thread( target=playsound, args=('3-2-10027.mp3',) )
 
-    for path in lineDump:
-        strip  = " ".join(path.split()) #path.replace(" ","")
-        params = strip.split(",")
-        evalNote(params)
+    for line in lineDump:
+        parseLine( line )
 
+#path.replace(" ","")
 #pygame.mixer.init()
 #pygame.mixer.music.load("file.mp3")
 #pygame.mixer.music.play()
