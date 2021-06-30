@@ -18,18 +18,30 @@ def evalNote(_params):
     if -1 != findRes:
         print( _params[1] )
         if " note 48" == _params[1]:
-            startSoundThread('3-2-10027.mp3')
+            makeNoise('3-2-10027.mp3')
         elif " note 36" == _params[1]:
             sys.exit()
+
+def makeNoise(_title):
+    global flag
+    if False == flag:
+        flag = True
+        t1 = threading.Thread( target=startSoundThread, args=(_title,) )
+        t1.start()
             
 def startSoundThread(_title):
-    t1 = threading.Thread( target=playsound, args=(_title,) )
-    t1.start()
+    global flag
+    playsound(_title)
+    flag = False
+
 
 
 
 
 if __name__ == "__main__":
+
+    flag = False
+
     myParser = adp.AseqdumpParser()
     lineDump = execute(["aseqdump", "-p", "24"])
     #t1 = threading.Thread( target=playsound, args=('3-2-10027.mp3',) )
