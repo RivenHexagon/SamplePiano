@@ -5,10 +5,9 @@
  *   Author:             Riven Hexagon      
  * 
  * General description:
- *   Reads MIDI data on Linux from a piano and plays corresponding audio files. 
+ *   Reads MIDI data on Linux via aseqdump from a piano andplays corresponding
+ *   audio files using playsound module. 
 '''
-
-#import AseqdumpParser as adp
 
 import subprocess
 import sys
@@ -16,10 +15,10 @@ import threading
 from queue  import Queue
 from playsound import playsound
 
-sampleTable = { "note 48": 'cat-moaning.mp3', 
-                "note 50": 'dog-barking.wav',}
+import sampleTable as st
 
-def executeAndYieldStdout(_cmd, _lineQ):
+
+def executeCmdAndQueueStdout(_cmd, _lineQ):
     popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
                               universal_newlines=True )
 
@@ -37,10 +36,13 @@ def executeAndYieldStdout(_cmd, _lineQ):
 def parseAseqdumpLine(_line):
     singleBlanksLine = " ".join( _line.split() ) # remove consecutive blanks
     lineSegments     = singleBlanksLine.split( "," )
+    return lineSegments
 
-    if isNoteOn( lineSegments[0] ):
-        note = lineSegments[1][1:] # [1:] ommits leading blank
-        evalNote( note )
+
+def filterMidiCmdsForNoteOn(_lineSegments):
+    if isNoteOn( _lineSegments[0] ):
+        note = _lineSegments[1][1:] # [1:] ommits leading blank
+        return note
 
 
 def isNoteOn(_lineSegment):
@@ -52,11 +54,9 @@ def isNoteOn(_lineSegment):
         return False
 
 
-def evalNote(_note):
-    checkExitOnNote( _note )
-
+def evalNoteAndPlaySound(_note):
     try:
-        audioFileName = sampleTable[_note]
+        audioFileName = st.sampleTable[_note]
         if noSoundIsPlaying():
             print( "Playing sample for", _note )
             makeNoise( audioFileName )
@@ -72,7 +72,6 @@ def checkExitOnNote(_note):
 
 def noSoundIsPlaying():
     cnt = threading.active_count()
-    print("active cnt:", cnt)
 
     if cnt < 3:
         return True
@@ -87,20 +86,20 @@ def makeNoise(_title):
 
 if __name__ == "__main__":
 
-    stop_flag = False
     lineQ  = Queue()
     aseqDumpArgs = ["aseqdump", "-p", "28"]
-    aseqDump = threading.Thread( target=executeAndYieldStdout, 
+    aseqDump = threading.Thread( target=executeCmdAndQueueStdout, 
                                  args=(aseqDumpArgs, lineQ) )
     aseqDump.daemon = True
     aseqDump.start()
 
     while True:
         line = lineQ.get()
-        parseAseqdumpLine( line )
+        lineSegments = parseAseqdumpLine( line )
+        note = filterMidiCmdsForNoteOn( lineSegments )
+        checkExitOnNote( note )
+        evalNoteAndPlaySound( note )
 
 
 ''' END '''
-
-#line.replace(" ","")
         
