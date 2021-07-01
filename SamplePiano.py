@@ -1,13 +1,25 @@
+''' 
+ * SamplePiano.py
+ *
+ *   Created on:         29.06.2021
+ *   Author:             Riven Hexagon      
+ * 
+ * General description:
+ *   Reads MIDI data on Linux from a piano and plays corresponding audio files. 
+'''
+
+#import AseqdumpParser as adp
+
 import subprocess
 import sys
 import threading
-#import AseqdumpParser as adp
+from queue  import Queue
 from playsound import playsound
 
 sampleTable = { "note 48": 'cat-moaning.mp3', 
                 "note 50": 'dog-barking.wav',}
 
-def executeAndYieldLinesFromStdout(_cmd):
+def executeAndYieldStdout(_cmd):
     popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
                               universal_newlines=True )
 
@@ -74,8 +86,12 @@ def makeNoise(_title):
 
 if __name__ == "__main__":
 
+    lineQ  = Queue()
+    aseqDumpArgs = ["aseqdump", "-p", "28"]
+    aseqDump = threading.Thread( target=executeAndYieldStdout, 
+                                 args=(aseqDumpArgs,) )
     #myParser = adp.AseqdumpParser()
-    aseqdumpLines = executeAndYieldLinesFromStdout(["aseqdump", "-p", "28"])
+    aseqdumpLines = executeAndYieldStdout(["aseqdump", "-p", "28"])
 
     for line in aseqdumpLines:
         parseAseqdumpLine( line )
