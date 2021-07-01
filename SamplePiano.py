@@ -20,14 +20,14 @@ sampleTable = { "note 48": 'cat-moaning.mp3',
                 "note 50": 'dog-barking.wav',}
 
 def executeAndYieldStdout(_cmd, _lineQ):
-    global stop_flag
+    #global stop_flag
     popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
                               universal_newlines=True )
 
     for stdout_line in iter(popen.stdout.readline, ""):
         _lineQ.put( stdout_line )
-        if stop_flag:
-            break
+        #if stop_flag:
+            #break
         #yield stdout_line 
 
     popen.stdout.close()
@@ -71,9 +71,9 @@ def evalNote(_note):
 def checkExitOnNote(_note):
     global stop_flag
     if "note 36" == _note:
-        stop_flag = True
-        #print("sys.exit() on note 36")
-        #sys.exit()
+        #stop_flag = True
+        print("sys.exit() on note 36")
+        sys.exit()
 
 
 def noSoundIsPlaying():
@@ -98,13 +98,14 @@ if __name__ == "__main__":
     aseqDumpArgs = ["aseqdump", "-p", "28"]
     aseqDump = threading.Thread( target=executeAndYieldStdout, 
                                  args=(aseqDumpArgs, lineQ) )
+    aseqDump.daemon = True
     aseqDump.start()
     while True:
         line = lineQ.get()
         #print( line )
         parseAseqdumpLine( line )
-        if stop_flag:
-            break
+        #if stop_flag:
+            #break
 
     aseqDump.join()
     #myParser = adp.AseqdumpParser()
