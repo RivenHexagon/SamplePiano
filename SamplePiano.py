@@ -5,14 +5,17 @@
  *   Author:             Riven Hexagon      
  * 
  * General description:
- *   Reads MIDI data on Linux via aseqdump from a piano andplays corresponding
- *   audio files using playsound module. 
+ *   Reads MIDI data on Linux via aseqdump from a piano and plays corresponding
+ *   audio files using playsound module.
+ *   Find your MIDI device client number with 'aconnect -i' on the console. Use
+ *   client number as aseqdump argument for the MIDI port number for e.g. -p 28:
+ *   aseqDumpArgs = ["aseqdump", "-p", "<client_number>"]
 '''
 
 import subprocess
-import sys
 import threading
-from queue  import Queue
+import sys
+from queue import Queue
 from playsound import playsound
 
 import sampleTable as st
@@ -86,15 +89,15 @@ def makeNoise(_title):
 
 if __name__ == "__main__":
 
-    lineQ  = Queue()
-    aseqDumpArgs = ["aseqdump", "-p", "28"]
+    lineQ = Queue()
+    aseqDumpArgs = ["aseqdump", "-p", str(st.midiClient)]
     aseqDump = threading.Thread( target=executeCmdAndQueueStdout, 
                                  args=(aseqDumpArgs, lineQ) )
     aseqDump.daemon = True
     aseqDump.start()
 
     while True:
-        line = lineQ.get()
+        line = lineQ.get() # get std output of aseqdump line by line
         lineSegments = parseAseqdumpLine( line )
         note = filterMidiCmdsForNoteOn( lineSegments )
         checkExitOnNote( note )
