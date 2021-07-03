@@ -15,6 +15,7 @@
 import subprocess
 import threading
 import sys
+from pygame import mixer
 from queue import Queue
 from playsound import playsound
 
@@ -25,7 +26,7 @@ def executeCmdAndQueueStdout(_cmd, _lineQ):
     popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
                               universal_newlines=True )
 
-    for stdout_line in iter(popen.stdout.readline, ""):
+    for stdout_line in iter( popen.stdout.readline, "" ):
         _lineQ.put( stdout_line )
 
     popen.stdout.close()
@@ -58,37 +59,41 @@ def isNoteOn(_lineSegment):
 
 
 def evalNoteAndPlaySound(_note):
+    global soundTable
+
     try:
-        audioFileName = st.sampleTable[_note]
-        if noSoundIsPlaying():
-            print( "Playing sample for", _note )
-            makeNoise( audioFileName )
+        sample = soundTable[_note]
+        sample.play()
+        print("playing sample for", _note)
     except:
-        print( "No sample for", _note )
+        print("No sample for", _note)
 
 
 def checkExitOnNote(_note):
     if "note 36" == _note:
-        print("sys.exit() on note 36")
+        print( "sys.exit() on note 36" )
+        mixer.stop()
+        mixer.quit()
         sys.exit()
 
 
-def noSoundIsPlaying():
-    cnt = threading.active_count()
+def createSoundTable():
+    print("\nCreating sound table...")
+    global soundTable
 
-    if cnt < 3:
-        return True
-    else:
-        return False
+    for key in st.sampleTable:
+        filename = st.sampleTable[key]
+        print(" ", key, "plays", filename)
+        try:
+            soundTable[key] = mixer.Sound(filename)
+        except:
+            print("invalid file")
 
-
-def makeNoise(_title):
-        t1 = threading.Thread( target=playsound, args=(_title,) )
-        t1.start()
-
+    print("  ...done\n")
 
 if __name__ == "__main__":
 
+    soundTable = {}
     lineQ = Queue()
     aseqDumpArgs = ["aseqdump", "-p", str(st.midiClient)]
     aseqDump = threading.Thread( target=executeCmdAndQueueStdout, 
@@ -96,12 +101,20 @@ if __name__ == "__main__":
     aseqDump.daemon = True
     aseqDump.start()
 
+    mixer.pre_init(44100, -16, 2, 2048)
+    mixer.init()
+    mixer.set_num_channels( st.polyphony )
+
+    createSoundTable()
+    evalNoteAndPlaySound( 'ready' )
+
     while True:
         line = lineQ.get() # get std output of aseqdump line by line
         lineSegments = parseAseqdumpLine( line )
         note = filterMidiCmdsForNoteOn( lineSegments )
-        checkExitOnNote( note )
-        evalNoteAndPlaySound( note )
+        if note:
+            checkExitOnNote( note )
+            evalNoteAndPlaySound( note )
 
 
 ''' END '''
