@@ -6,7 +6,7 @@
  * 
  * General description:
  *   Reads MIDI data on Linux via aseqdump from a piano and plays corresponding
- *   audio files using playsound module.
+ *   audio files using pygame mixer module.
  *   Find your MIDI device client number with 'aconnect -i' on the console. Use
  *   client number as aseqdump argument for the MIDI port number for e.g. -p 28:
  *   aseqDumpArgs = ["aseqdump", "-p", "<client_number>"]
@@ -17,7 +17,6 @@ import threading
 import sys
 from pygame import mixer
 from queue import Queue
-from playsound import playsound
 
 import sampleTable as st
 
@@ -47,6 +46,8 @@ def filterMidiCmdsForNoteOn(_lineSegments):
     if isNoteOn( _lineSegments[0] ):
         note = _lineSegments[1][1:] # [1:] ommits leading blank
         return note
+    else:
+        return None
 
 
 def isNoteOn(_lineSegment):
@@ -95,6 +96,7 @@ if __name__ == "__main__":
 
     soundTable = {}
     lineQ = Queue()
+
     aseqDumpArgs = ["aseqdump", "-p", str(st.midiClient)]
     aseqDump = threading.Thread( target=executeCmdAndQueueStdout, 
                                  args=(aseqDumpArgs, lineQ) )
