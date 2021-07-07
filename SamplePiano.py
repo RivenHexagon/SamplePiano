@@ -22,8 +22,8 @@ import sampleTable as st
 
 class AseqDump:
 
-    def __init__(self):
-        self.noteQ = Queue()
+    def __init__(self): # TODO add aseqdump args
+        self.midiCommandQ = Queue()
         self.noteCmdParam = {}
 
 
@@ -32,7 +32,9 @@ class AseqDump:
                                   universal_newlines=True )
 
         for stdout_line in iter( popen.stdout.readline, "" ):
-            _lineQ.put( stdout_line )
+            if self.isHeader( stdout_line ):
+                continue
+            self.parseLineAndQueueCmdParams( stdout_line )
 
         popen.stdout.close()
         return_code = popen.wait()
@@ -41,13 +43,18 @@ class AseqDump:
             raise subprocess.CalledProcessError(return_code, _cmd)
 
 
-    def parseLineAndQueueCmdParams(_line):
+    def isHeader(self, _line):
+        findCount = _line.find( 'Source' )
+        if -1 != findCount:
+            return True
+        else:
+            return False
+
+
+    def parseLineAndQueueCmdParams(self, _line):
         lineSegments = self.getLineSegments( _line )
         self.getCmdParameters( lineSegments )
-
-
-    def isHeader(self, _line):
-        pass
+        self.midiCommandQ.put( stdout_line )
 
 
     def getLineSegments(self, _line):
@@ -57,12 +64,12 @@ class AseqDump:
 
 
     def getCmdParameters(self, _lineSegs):
-        self.getCmdAndCh  ( _lineSegs[0] )
+        self.getCmdAndChannel( _lineSegs[0] )
         if self.isNoteCmd():
             self.evalNoteCmd( _lineSegs )
 
 
-    def getCmdAndCh(self, _segment):
+    def getCmdAndChannel(self, _segment):
         subSegs = _segment.split( " " )
         cmd = " ".join( (subSegs[1],subSegs[2]) )
         self.cmdParam["command"] = cmd
@@ -91,6 +98,12 @@ class AseqDump:
     def getVelocity(self, _segment):
         subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
         self.noteCmdParam["velocity"] = subSegs[1]
+
+
+class SamplePiano:
+
+    def __init__(self):
+        pass
 
 
 def evalNoteAndPlaySound(_note):
