@@ -24,6 +24,7 @@ class AseqDump:
 
     def __init__(self):
         self.noteQ = Queue()
+        self.noteCmdParam = {}
 
 
     def executeCmdAndQueueStdout(_cmd, _lineQ):
@@ -40,8 +41,13 @@ class AseqDump:
             raise subprocess.CalledProcessError(return_code, _cmd)
 
 
-    def parseAseqdumpLine(_line):
+    def parseLineAndQueueCmdParams(_line):
         lineSegments = self.getLineSegments( _line )
+        self.getCmdParameters( lineSegments )
+
+
+    def isHeader(self, _line):
+        pass
 
 
     def getLineSegments(self, _line):
@@ -50,21 +56,41 @@ class AseqDump:
         return lineSegments
 
 
-def filterMidiCmdsForNoteOn(_lineSegments):
-    if isNoteOn( _lineSegments[0] ):
-        note = _lineSegments[1][1:] # [1:] ommits leading blank
-        return note
-    else:
-        return None
+    def getCmdParameters(self, _lineSegs):
+        self.getCmdAndCh  ( _lineSegs[0] )
+        if self.isNoteCmd():
+            self.evalNoteCmd( _lineSegs )
 
 
-def isNoteOn(_lineSegment):
-    findCount = _lineSegment.find( 'Note on' )
+    def getCmdAndCh(self, _segment):
+        subSegs = _segment.split( " " )
+        cmd = " ".join( (subSegs[1],subSegs[2]) )
+        self.cmdParam["command"] = cmd
+        self.cmdParam["channel"] = subSegs[3]
 
-    if -1 != findCount:
-        return True
-    else:
-        return False
+
+    def isNoteCmd():
+        if "Note on" == self.cmdParam["command"]:
+            return True
+        elif: "Note off" == self.cmdParam["command"]:
+            return True
+        else:
+            return False
+
+
+    def evalNoteCmd(self, _lineSegs):
+        self.getNoteIndex( _lineSegs[1] )
+        self.getVelocity ( _lineSegs[2] )
+
+
+    def getNoteIndex(self, _segment):
+        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
+        self.noteCmdParam["note"] = subSegs[1] 
+
+
+    def getVelocity(self, _segment):
+        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
+        self.noteCmdParam["velocity"] = subSegs[1]
 
 
 def evalNoteAndPlaySound(_note):
