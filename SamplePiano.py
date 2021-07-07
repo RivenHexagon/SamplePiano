@@ -20,26 +20,34 @@ from queue import Queue
 
 import sampleTable as st
 
+class AseqDump:
 
-def executeCmdAndQueueStdout(_cmd, _lineQ):
-    popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
-                              universal_newlines=True )
-
-    for stdout_line in iter( popen.stdout.readline, "" ):
-        _lineQ.put( stdout_line )
-
-    popen.stdout.close()
-    return_code = popen.wait()
-
-    if return_code:
-        raise subprocess.CalledProcessError(return_code, _cmd)
+    def __init__(self):
+        self.noteQ = Queue()
 
 
-#TODO make parser for those lines that gives full content
-def parseAseqdumpLine(_line):
-    singleBlanksLine = " ".join( _line.split() ) # remove consecutive blanks
-    lineSegments     = singleBlanksLine.split( "," )
-    return lineSegments
+    def executeCmdAndQueueStdout(_cmd, _lineQ):
+        popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
+                                  universal_newlines=True )
+
+        for stdout_line in iter( popen.stdout.readline, "" ):
+            _lineQ.put( stdout_line )
+
+        popen.stdout.close()
+        return_code = popen.wait()
+
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, _cmd)
+
+
+    def parseAseqdumpLine(_line):
+        lineSegments = self.getLineSegments( _line )
+
+
+    def getLineSegments(self, _line):
+        singleBlanksLine = " ".join( _line.split() ) # remove consecutive blanks
+        lineSegments     = singleBlanksLine.split( "," )
+        return lineSegments
 
 
 def filterMidiCmdsForNoteOn(_lineSegments):
