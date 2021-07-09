@@ -26,7 +26,7 @@ class AseqDumpParser:
 
     def parseLineAndQueueMidiCmd(self, _line):
         if self.lineContainesWords( ["Waiting", "Source"], _line ):
-            return
+            return # line is a headline after startup, not a midi cmd
 
         lineSegments = self.getLineSegments( _line )
         self.getMidiCmd( lineSegments )
@@ -38,7 +38,7 @@ class AseqDumpParser:
         for keyWord in _keyWords:
             findCount = _line.find( keyWord )
             if -1 != findCount:
-                return True # line is a headline after startup, not a midi cmd
+                return True
         return False
 
 
