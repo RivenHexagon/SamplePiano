@@ -35,29 +35,29 @@ class SamplePiano:
     def createSoundTable(self, _sampleTable):
         print("\nCreating sound table...")
 
-        for key in _sampleTable:
-            filename = _sampleTable[key]
+        for noteIndex in _sampleTable:
+            filename = _sampleTable[noteIndex]
             try:
-                self.soundTable[key] = mixer.Sound(filename)
-                print(" Note", key, "plays", filename)
+                self.soundTable[noteIndex] = mixer.Sound(filename)
+                print(" Note", noteIndex, "plays", filename)
             except:
                 print("Invalid file")
 
         print(" ...done\n")
 
 
-    def evalNoteAndPlaySound(self, _note):
-        self.checkExitOnNote( _note )
+    def evalNoteAndPlaySound(self, _noteIndex):
+        self.checkExitOnNote( _noteIndex )
         try:
-            sample = self.soundTable[_note]
+            sample = self.soundTable[_noteIndex]
             sample.play()
-            print("Playing sample for Note", _note)
+            print("Playing sample for Note", _noteIndex)
         except:
-            print("No sample for Note", _note)
+            print("No sample for Note", _noteIndex)
 
 
-    def checkExitOnNote(self, _note):
-        if _note == self.exitNote:
+    def checkExitOnNote(self, _noteIndex):
+        if _noteIndex == self.exitNote:
             mixer.stop()
             mixer.quit()
             print( "sys.exit() on note", self.exitNote )

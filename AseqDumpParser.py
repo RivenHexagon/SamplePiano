@@ -17,7 +17,7 @@ class AseqDumpParser:
 
     def __init__(self):
         self.midiCommandQ = Queue()
-        self.cmdParam = {}
+        self.midiCommand  = {}
 
 
     def getNextMidiCommand(self):
@@ -25,22 +25,21 @@ class AseqDumpParser:
 
 
     def parseLineAndQueueCmdParams(self, _line):
-        if self.isHeader( _line ):
+        if self.lineContainesWords( ["Waiting", "Source"], _line ):
             return
 
         lineSegments = self.getLineSegments( _line )
         self.getCmdParameters( lineSegments )
 
-        self.midiCommandQ.put( self.cmdParam )
+        self.midiCommandQ.put( self.midiCommand )
 
 
-    def isHeader(self, _line):
-        findCount1 = _line.find( 'Waiting' )
-        findCount2 = _line.find( 'Source' )
-        if (-1 != findCount1) or (-1 != findCount2):
-            return True
-        else:
-            return False
+    def lineContainesWords(self, _keyWords, _line):
+        for keyWord in _keyWords:
+            findCount = _line.find( keyWord )
+            if -1 != findCount:
+                return True # line is a headline after startup, not a midi cmd
+        return False
 
 
     def getLineSegments(self, _line):
@@ -50,36 +49,30 @@ class AseqDumpParser:
 
 
     def getCmdParameters(self, _lineSegs):
-        self.cmdParam = {}
-        self.getCmdAndChannel( _lineSegs[0] )
+        self.midiCommand = {} # clear temp cmd
+        self.getMidiCmdTypeAndChannel( _lineSegs[0] )
 
-        if self.isNoteCmd():
+        if self.isMidiCommandOfTypes( ["Note on", "Note off"] ):
             self.evalNoteCmd( _lineSegs )
-        elif self.isPitchBendCmd():
+        elif self.isMidiCommandOfTypes( ["Pitch bend"] ):
             self.evalPitchBendCmd( _lineSegs )
+        else:
+            print( "Unsupported MIDI command" )
 
 
-    def getCmdAndChannel(self, _segment):
+    def getMidiCmdTypeAndChannel(self, _segment):
         subSegs = _segment.split( " " )
         cmd = " ".join( (subSegs[1],subSegs[2]) )
-        self.cmdParam["command"] = cmd
-        self.cmdParam["channel"] = subSegs[3]
+
+        self.midiCommand["command"] = cmd
+        self.midiCommand["channel"] = subSegs[3]
 
 
-    def isNoteCmd(self):
-        if "Note on" == self.cmdParam["command"]:
-            return True
-        elif "Note off" == self.cmdParam["command"]:
-            return True
-        else:
-            return False
-
-
-    def isPitchBendCmd(self):
-        if "Pitch bend" == self.cmdParam["command"]:
-            return True
-        else:
-            return False
+    def isMidiCommandOfTypes(self, _cmdNames):
+        for cmdName in _cmdNames:
+            if cmdName == self.midiCommand["command"]:
+                return True
+        return False
 
 
     def evalNoteCmd(self, _lineSegs):
@@ -93,7 +86,7 @@ class AseqDumpParser:
 
     def getValue(self, _valueName, _segment):
         subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.cmdParam[_valueName] = int( subSegs[1] )
+        self.midiCommand[_valueName] = int( subSegs[1] )
 
 
 if '__main__' == __name__:  # for testing purposes
