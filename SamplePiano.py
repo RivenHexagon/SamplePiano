@@ -5,180 +5,76 @@
  *   Author:             Riven Hexagon      
  * 
  * General description:
- *   Reads MIDI data on Linux via aseqdump from a piano and plays corresponding
- *   audio files using pygame mixer module.
- *   Find your MIDI device client number with 'aconnect -i' on the console. Use
- *   client number as aseqdump argument for the MIDI port number for e.g. -p 28:
- *   aseqDumpArgs = ["aseqdump", "-p", "<client_number>"]
+ *   Evaluates an intege value (MIDI note index) and plays a corresponding audio
+ *   file using the pygame mixer module. It requires a sample table in form of a
+ *   native python dict containing the note index and the path to the correspon-
+ *   ding audio sample. The _polyphony parameter adjusts how many samples can be
+ *   played simultaneously.
 '''
 
-import subprocess
-import threading
 import sys
 from pygame import mixer
-from queue import Queue
-
-import sampleTable as st
-
-class AseqDump:
-
-    def __init__(self): # TODO add aseqdump args
-        self.midiCommandQ = Queue()
-        self.noteCmdParam = {}
-        self.aseqDump = None
-
-
-    def startAseqDump(self, _midiClient):
-        aseqDumpArgs = ["aseqdump", "-p", _midiClient]
-        self.aseqDump = threading.Thread( target=self.executeCmdAndParseStdout, 
-                                      args=(aseqDumpArgs, lineQ) )
-        self.aseqDump.daemon = True
-        self.aseqDump.start()
-
-
-    def executeCmdAndParseStdout(_cmd, _lineQ):
-        popen = subprocess.Popen( self.aseqCmd, stdout=subprocess.PIPE,
-                                  universal_newlines=True )
-
-        for stdout_line in iter( popen.stdout.readline, "" ):
-            print( stdout_line )
-            if self.isHeader( stdout_line ):
-                continue
-            self.parseLineAndQueueCmdParams( stdout_line )
-
-        popen.stdout.close()
-        return_code = popen.wait()
-
-        if return_code:
-            raise subprocess.CalledProcessError(return_code, _cmd)
-
-
-    def isHeader(self, _line):
-        findCount = _line.find( 'Source' )
-        if -1 != findCount:
-            return True
-        else:
-            return False
-
-
-    def parseLineAndQueueCmdParams(self, _line):
-        lineSegments = self.getLineSegments( _line )
-        self.getCmdParameters( lineSegments )
-
-        self.midiCommandQ.put( self.noteCmdParam )
-
-
-    def getLineSegments(self, _line):
-        singleBlanksLine = " ".join( _line.split() ) # remove consecutive blanks
-        lineSegments     = singleBlanksLine.split( "," )
-        return lineSegments
-
-
-    def getCmdParameters(self, _lineSegs):
-        self.noteCmdParam = {}
-    
-        self.getCmdAndChannel( _lineSegs[0] )
-        if self.isNoteCmd():
-            self.evalNoteCmd( _lineSegs )
-
-
-    def getCmdAndChannel(self, _segment):
-        subSegs = _segment.split( " " )
-        cmd = " ".join( (subSegs[1],subSegs[2]) )
-        print( "cmd:", cmd)
-        self.cmdParam["command"] = cmd
-        self.cmdParam["channel"] = subSegs[3]
-
-
-    def isNoteCmd():
-        if "Note on" == self.cmdParam["command"]:
-            return True
-        elif: "Note off" == self.cmdParam["command"]:
-            return True
-        else:
-            return False
-
-
-    def evalNoteCmd(self, _lineSegs):
-        self.getNoteIndex( _lineSegs[1] )
-        self.getVelocity ( _lineSegs[2] )
-
-
-    def getNoteIndex(self, _segment):
-        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.noteCmdParam["note"] = subSegs[1] 
-
-
-    def getVelocity(self, _segment):
-        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.noteCmdParam["velocity"] = subSegs[1]
 
 
 class SamplePiano:
 
-    def __init__(self):
-        pass
+    def __init__(self, _sampleTable, _polyphony):
+        self.soundTable  = {}
+
+        self.initMixer( _polyphony )
+        self.createSoundTable( _sampleTable )
 
 
-def evalNoteAndPlaySound(_note):
-    global soundTable
-
-    try:
-        sample = soundTable[_note]
-        sample.play()
-        print("playing sample for", _note)
-    except:
-        print("No sample for", _note)
+    def initMixer(self, _polyphony):
+        mixer.pre_init(44100, -16, 2, 2048)
+        mixer.init()
+        mixer.set_num_channels( _polyphony )
 
 
-def checkExitOnNote(_note):
-    if "note 36" == _note:
-        print( "sys.exit() on note 36" )
-        mixer.stop()
-        mixer.quit()
-        sys.exit()
+    def createSoundTable(self, _sampleTable):
+        print("\nCreating sound table...")
+
+        for key in _sampleTable:
+            filename = _sampleTable[key]
+            try:
+                self.soundTable[key] = mixer.Sound(filename)
+                print(" Note", key, "plays", filename)
+            except:
+                print("Invalid file")
+
+        print(" ...done\n")
 
 
-def createSoundTable():
-    print("\nCreating sound table...")
-    global soundTable
-
-    for key in st.sampleTable:
-        filename = st.sampleTable[key]
-        print(" ", key, "plays", filename)
+    def evalNoteAndPlaySound(self, _note):
+        self.checkExitOnNote( _note )
         try:
-            soundTable[key] = mixer.Sound(filename)
+            sample = self.soundTable[_note]
+            sample.play()
+            print("Playing sample for Note", _note)
         except:
-            print("invalid file")
+            print("No sample for Note", _note)
 
-    print("  ...done\n")
 
-if __name__ == "__main__":
+    def checkExitOnNote(self, _note):
+        if 36 == _note:
+            mixer.stop()
+            mixer.quit()
+            print( "sys.exit() on note 36" )
+            sys.exit()
 
-    soundTable = {}
-    lineQ = Queue()
 
-    aseqDumpArgs = ["aseqdump", "-p", str(st.midiClient)]
-    aseqDump = threading.Thread( target=executeCmdAndQueueStdout, 
-                                 args=(aseqDumpArgs, lineQ) )
-    aseqDump.daemon = True
-    aseqDump.start()
+if '__main__' == __name__:
 
-    mixer.pre_init(44100, -16, 2, 2048)
-    mixer.init()
-    mixer.set_num_channels( st.polyphony )
+    import time
 
-    createSoundTable()
-    evalNoteAndPlaySound( 'ready' )
+    sampleTable = { 48: 'sounds/cat-meow.wav', 
+                    50: 'sounds/dog-barking.wav'}
 
-    while True:
-        line = lineQ.get() # get std output of aseqdump line by line
-        lineSegments = parseAseqdumpLine( line )
-        note = filterMidiCmdsForNoteOn( lineSegments )
-        if note:
-            checkExitOnNote( note )
-            evalNoteAndPlaySound( note )
+    myPiano = SamplePiano( sampleTable, 2 )
+    myPiano.evalNoteAndPlaySound( 48 )
+    myPiano.evalNoteAndPlaySound( 50 )
 
+    time.sleep(2)
 
 ''' END '''
         

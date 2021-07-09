@@ -5,24 +5,22 @@
  *   Author:             Riven Hexagon      
  * 
  * General description:
- *   Reads MIDI data on Linux via aseqdump from a piano and plays corresponding
- *   audio files using pygame mixer module.
- *   Find your MIDI device client number with 'aconnect -i' on the console. Use
- *   client number as aseqdump argument for the MIDI port number for e.g. -p 28:
- *   aseqDumpArgs = ["aseqdump", "-p", "<client_number>"]
+ *   Parses output of aseqdump line by line and extracts Note on/off and Pitch
+ *   bend midi commands. Those are returned in a queue as native python dicts.
 '''
 
-import subprocess
-import threading
 from queue import Queue
 
-import sampleTable as st
 
 class AseqDumpParser:
 
     def __init__(self):
         self.midiCommandQ = Queue()
         self.cmdParam = {}
+
+
+    def getNextMidiCommand(self):
+        return self.midiCommandQ.get()
 
 
     def parseLineAndQueueCmdParams(self, _line):
@@ -56,7 +54,7 @@ class AseqDumpParser:
 
         if self.isNoteCmd():
             self.evalNoteCmd( _lineSegs )
-        if self.isPitchBendCmd():
+        elif self.isPitchBendCmd():
             self.evalPitchBendCmd( _lineSegs )
 
 
@@ -84,30 +82,25 @@ class AseqDumpParser:
 
 
     def evalNoteCmd(self, _lineSegs):
-        self.getNoteIndex( _lineSegs[1] )
-        self.getVelocity ( _lineSegs[2] )
-
-
-    def getNoteIndex(self, _segment):
-        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.cmdParam["note"] = subSegs[1] 
-
-
-    def getVelocity(self, _segment):
-        subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.cmdParam["velocity"] = subSegs[1]
+        self.getValue( "note", _lineSegs[1] ) # note index
+        self.getValue( "velocity", _lineSegs[2] )
 
 
     def evalPitchBendCmd(self, _lineSegs):
-        self.getPitchBendValue( _lineSegs[1] )
+        self.getValue( "value", _lineSegs[1] ) # pitch bend value
 
 
-    def getPitchBendValue(self, _segment):
+    def getValue(self, _valueName, _segment):
         subSegs = _segment[1:].split( " " ) # [1:] ommits leading blank
-        self.cmdParam["value"] = subSegs[1]
+        self.cmdParam[_valueName] = int( subSegs[1] )
 
 
 if '__main__' == __name__:
+
+    import subprocess
+    import threading
+
+    import sampleTable as st
 
     def executeCmdAndProcessStdout(_cmd, _parserFunct):
         popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
