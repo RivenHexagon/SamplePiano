@@ -42,4 +42,4 @@ As of July 2021 make sure you apply the following update and installation:
 
 Start the script with
 
-    $ python3 SamplePiano.py
+    $ python3 StartSamplePiano.py
