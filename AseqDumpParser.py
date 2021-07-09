@@ -6,7 +6,8 @@
  * 
  * General description:
  *   Parses output of aseqdump line by line and extracts Note on/off and Pitch
- *   bend midi commands. Those are returned in a queue as native python dicts.
+ *   bend MIDI commands. Those are returned in a queue as native python dicts.
+ *   Aseqdump is a linux tool that logs incoming MIDI commands to the console.
 '''
 
 from queue import Queue
@@ -95,12 +96,10 @@ class AseqDumpParser:
         self.cmdParam[_valueName] = int( subSegs[1] )
 
 
-if '__main__' == __name__:
+if '__main__' == __name__:  # for testing purposes
 
     import subprocess
     import threading
-
-    import sampleTable as st
 
     def executeCmdAndProcessStdout(_cmd, _parserFunct):
         popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
@@ -128,12 +127,11 @@ if '__main__' == __name__:
 
     myParser = AseqDumpParser()
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 
-                                  myParser.parseLineAndQueueCmdParams,
-                                  st.midiClient )
+                              myParser.parseLineAndQueueCmdParams,
+                              28 ) # identify with 'aconnect -i' on console
     while True:
         midiCmd = myParser.midiCommandQ.get()
         print( midiCmd )
-
 
 ''' END '''
 

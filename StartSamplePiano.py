@@ -7,10 +7,7 @@
  * General description:
  *   Reads MIDI data on Linux via aseqdump from a piano and plays corresponding
  *   audio files using pygame mixer module.
- *   Find your MIDI device client number with 'aconnect -i' on the console. Use
- *   client number as aseqdump argument for the MIDI port number for e.g. -p 28:
- *   aseqDumpArgs = ["aseqdump", "-p", "<client_number>"] Add the client number
- *   and your your audio files to sampleTable.py
+ *   Add your your files to sampleTable.py and adapt the midiClient parameter.
 '''
 
 import subprocess
@@ -65,7 +62,6 @@ if '__main__' == __name__:
         #print( midiCmd )
         if isNoteOn( midiCmd ):
             myPiano.evalNoteAndPlaySound( midiCmd['note'] )
-
 
 ''' END '''
 

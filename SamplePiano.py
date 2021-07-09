@@ -5,7 +5,7 @@
  *   Author:             Riven Hexagon      
  * 
  * General description:
- *   Evaluates an intege value (MIDI note index) and plays a corresponding audio
+ *   Evaluates an integer value (MIDI note index) and plays a corresponding audio
  *   file using the pygame mixer module. It requires a sample table in form of a
  *   native python dict containing the note index and the path to the correspon-
  *   ding audio sample. The _polyphony parameter adjusts how many samples can be
@@ -63,7 +63,7 @@ class SamplePiano:
             sys.exit()
 
 
-if '__main__' == __name__:
+if '__main__' == __name__: # for testing purposes
 
     import time
 
