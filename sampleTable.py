@@ -25,5 +25,8 @@ sampleTable = { 48: 'sounds/cat-meow.wav',
 # Adjusts how many samples can be played simultaneously.
 polyphony = 2
 
+# End program when this note is pressed
+exitNote = 36
+
 ''' END '''
 

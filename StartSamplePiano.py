@@ -48,7 +48,9 @@ def isNoteOn(_midiCmd):
 
 if '__main__' == __name__:
 
-    myPiano  = sp.SamplePiano( st.sampleTable, st.polyphony )
+    myPiano  = sp.SamplePiano( st.sampleTable,
+                               st.polyphony,
+                               st.exitNote )
     myParser = adp.AseqDumpParser()
 
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 

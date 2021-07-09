@@ -18,8 +18,9 @@ from pygame import mixer
 
 class SamplePiano:
 
-    def __init__(self, _sampleTable, _polyphony):
+    def __init__(self, _sampleTable, _polyphony, _exitNote):
         self.soundTable  = {}
+        self.exitNote = _exitNote
 
         self.initMixer( _polyphony )
         self.createSoundTable( _sampleTable )
@@ -56,10 +57,10 @@ class SamplePiano:
 
 
     def checkExitOnNote(self, _note):
-        if 36 == _note:
+        if _note == self.exitNote:
             mixer.stop()
             mixer.quit()
-            print( "sys.exit() on note 36" )
+            print( "sys.exit() on note", self.exitNote )
             sys.exit()
 
 
@@ -70,7 +71,10 @@ if '__main__' == __name__: # for testing purposes
     sampleTable = { 48: 'sounds/cat-meow.wav', 
                     50: 'sounds/dog-barking.wav'}
 
-    myPiano = SamplePiano( sampleTable, 2 )
+    polyphony = 2
+    exitNote  = 36
+
+    myPiano = SamplePiano( sampleTable, polyphony, exitNote )
     myPiano.evalNoteAndPlaySound( 48 )
     myPiano.evalNoteAndPlaySound( 50 )
 
