@@ -25,13 +25,23 @@ class AseqDump:
     def __init__(self): # TODO add aseqdump args
         self.midiCommandQ = Queue()
         self.noteCmdParam = {}
+        self.aseqDump = None
 
 
-    def executeCmdAndQueueStdout(_cmd, _lineQ):
-        popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
+    def startAseqDump(self, _midiClient):
+        aseqDumpArgs = ["aseqdump", "-p", _midiClient]
+        self.aseqDump = threading.Thread( target=self.executeCmdAndParseStdout, 
+                                      args=(aseqDumpArgs, lineQ) )
+        self.aseqDump.daemon = True
+        self.aseqDump.start()
+
+
+    def executeCmdAndParseStdout(_cmd, _lineQ):
+        popen = subprocess.Popen( self.aseqCmd, stdout=subprocess.PIPE,
                                   universal_newlines=True )
 
         for stdout_line in iter( popen.stdout.readline, "" ):
+            print( stdout_line )
             if self.isHeader( stdout_line ):
                 continue
             self.parseLineAndQueueCmdParams( stdout_line )
@@ -54,7 +64,8 @@ class AseqDump:
     def parseLineAndQueueCmdParams(self, _line):
         lineSegments = self.getLineSegments( _line )
         self.getCmdParameters( lineSegments )
-        self.midiCommandQ.put( stdout_line )
+
+        self.midiCommandQ.put( self.noteCmdParam )
 
 
     def getLineSegments(self, _line):
@@ -64,6 +75,8 @@ class AseqDump:
 
 
     def getCmdParameters(self, _lineSegs):
+        self.noteCmdParam = {}
+    
         self.getCmdAndChannel( _lineSegs[0] )
         if self.isNoteCmd():
             self.evalNoteCmd( _lineSegs )
@@ -72,6 +85,7 @@ class AseqDump:
     def getCmdAndChannel(self, _segment):
         subSegs = _segment.split( " " )
         cmd = " ".join( (subSegs[1],subSegs[2]) )
+        print( "cmd:", cmd)
         self.cmdParam["command"] = cmd
         self.cmdParam["channel"] = subSegs[3]
 
