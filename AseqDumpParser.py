@@ -24,12 +24,12 @@ class AseqDumpParser:
         return self.midiCommandQ.get()
 
 
-    def parseLineAndQueueCmdParams(self, _line):
+    def parseLineAndQueueMidiCmd(self, _line):
         if self.lineContainesWords( ["Waiting", "Source"], _line ):
             return
 
         lineSegments = self.getLineSegments( _line )
-        self.getCmdParameters( lineSegments )
+        self.getMidiCmd( lineSegments )
 
         self.midiCommandQ.put( self.midiCommand )
 
@@ -48,7 +48,7 @@ class AseqDumpParser:
         return lineSegments
 
 
-    def getCmdParameters(self, _lineSegs):
+    def getMidiCmd(self, _lineSegs):
         self.midiCommand = {} # clear temp cmd
         self.getMidiCmdTypeAndChannel( _lineSegs[0] )
 
@@ -120,7 +120,7 @@ if '__main__' == __name__:  # for testing purposes
 
     myParser = AseqDumpParser()
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 
-                              myParser.parseLineAndQueueCmdParams,
+                              myParser.parseLineAndQueueMidiCmd,
                               28 ) # identify with 'aconnect -i' on console
     while True:
         midiCmd = myParser.midiCommandQ.get()

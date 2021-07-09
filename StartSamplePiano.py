@@ -54,7 +54,7 @@ if '__main__' == __name__:
     myParser = adp.AseqDumpParser()
 
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 
-                              myParser.parseLineAndQueueCmdParams,
+                              myParser.parseLineAndQueueMidiCmd,
                               st.midiClient )
 
     myPiano.evalNoteAndPlaySound( 0 )
