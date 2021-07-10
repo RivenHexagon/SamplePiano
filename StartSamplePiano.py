@@ -12,6 +12,7 @@
 
 import subprocess
 import threading
+from time import sleep
 
 import sampleTable as st
 import SamplePiano as sp
@@ -47,6 +48,7 @@ def isNoteOn(_midiCmd):
 
 
 if '__main__' == __name__:
+    sleep(st.startupDelay)
 
     myPiano  = sp.SamplePiano( st.sampleTable,
                                st.polyphony,

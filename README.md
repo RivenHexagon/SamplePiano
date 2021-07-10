@@ -40,6 +40,14 @@ As of July 2021 make sure you apply the following update and installation:
     $ pip3 install pygame --update
     $ sudo apt install libsdl2-mixer-2.0
 
-Start the script with
+Start the script manually with
 
     $ python3 StartSamplePiano.py
+
+You can also add the script to an autostart file such as `/etc/xdg/lxsession/LXDE-pi/autostart`.
+Add the Script to the end of the file by keeping the existing entrys:
+
+    @lxpanel --profile LXDE-pi
+    @pcmanfm --desktop --profile LXDE-pi
+    @xscreensaver -no-splash
+    @python3 /home/pi/SamplePiano/StartSamplePiano.py
