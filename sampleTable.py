@@ -14,7 +14,7 @@
 midiClient = 24
 
 # Absolute path to audio files. Allows you to start the script from anywhere.
-soundDir = '/home/pi/Sample-Piano/sounds/'
+soundDir = '/home/pi/SamplePiano/sounds/'
 
 # Identify key/note indices by running 'aseqdump -p <client_number>' on console
 # and act on your MIDI keyboard.
