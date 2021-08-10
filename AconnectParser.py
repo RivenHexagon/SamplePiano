@@ -55,8 +55,8 @@ class AconnectParser:
 if '__main__' == __name__:
 
     import subprocess
+    import sampleTable as st
 
-    midiDevice = "'Midi Through'"
     myAcp = AconnectParser()
 
     output = subprocess.run( ['aconnect', '-i'],
@@ -64,7 +64,7 @@ if '__main__' == __name__:
 
     outStr = myAcp.decodeAconOutput( output )
     lines  = myAcp.getSeparateLines( outStr )
-    line   = myAcp.findLineOfMidiDevice( midiDevice, lines )
+    line   = myAcp.findLineOfMidiDevice( st.midiDeviceName, lines )
     if line:
         print(line)
         clientNumber = myAcp.getClientNumberFromLine( line )

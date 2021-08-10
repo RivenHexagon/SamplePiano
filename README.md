@@ -19,7 +19,7 @@ The output may look like this:
         1 'Announce        '
     client 14: 'Midi Through' [type=kernel]
         0 'Midi Through Port-0'
-    client 20: 'Keystation Mini 32' [type=kernel,card=1]
+    client 24: 'Keystation Mini 32' [type=kernel,card=1]
         0 'Keystation Mini 32 MIDI 1'
 
 To identify the note numbers of your MIDI keyboard's keys, just run aseqdump manually with the client number of your MIDI devicde as a parameter and act on some keys and controllers:

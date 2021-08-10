@@ -9,8 +9,16 @@
  *   samples to sampleTable and associate them with the MIDI note indices.
 '''
 
+# ALSA MIDI device client name (adapt).
+# Identify by running 'aconnect -i' on console.
+# The output may look like this:
+#     client 24: 'Keystation Mini 32' [type=kernel,card=1]
+# Keep name in apostroph for e.g.: "'Keystation Mini 32'"
+midiDeviceName = "'Midi Through'"
+
 # ALSA MIDI device port/client number (adapt).
 # Identify by running 'aconnect -i' on console.
+# Is updated automatically in newer versions of StartSamplePiano.py
 midiClient = 24
 
 # Absolute path to audio files. Allows you to start the script from anywhere.
