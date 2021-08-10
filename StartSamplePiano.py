@@ -13,10 +13,22 @@
 import subprocess
 import threading
 from time import sleep
+import sys
 
 import sampleTable as st
 import SamplePiano as sp
 import AseqDumpParser as adp
+import AconnectParser as acp
+
+
+def autoSetupMidiDeviceNumber( _midiDevName ):
+    aConnectOutput = subprocess.run( ['aconnect', '-i'],
+                          stdout=subprocess.PIPE )
+    midiDevNumber  = myAcp.fetchDeviceNumber( st.midiDeviceName,
+                                              aConnectOutput )
+    if midiDevNumber:
+        print(_midiDevName, "has MIDI device number:", midiDevNumber)
+        st.midiDeviceNumber = midiDevNumber
 
 
 def executeCmdAndProcessStdout(_cmd, _parserFunct):
@@ -54,11 +66,13 @@ if '__main__' == __name__:
                                st.polyphony,
                                st.exitNote )
     myParser = adp.AseqDumpParser()
+    myAcp    = acp.AconnectParser()
 
+    autoSetupMidiDeviceNumber( st.midiDeviceName )
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 
                               myParser.parseLineAndQueueMidiCmd,
-                              st.midiClient )
-
+                              st.midiDeviceNumber )
+    sleep(1)    
     myPiano.evalNoteAndPlaySound( 0 )
 
     while True:

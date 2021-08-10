@@ -37,6 +37,7 @@ class SamplePiano:
 
         for noteIndex in _sampleTable:
             filename = _sampleTable[noteIndex]
+            #print(filename)
             try:
                 self.soundTable[noteIndex] = mixer.Sound(filename)
                 print(" Note", noteIndex, "plays", filename)

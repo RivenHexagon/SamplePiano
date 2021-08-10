@@ -14,14 +14,17 @@
 # The output may look like this:
 #     client 24: 'Keystation Mini 32' [type=kernel,card=1]
 # Keep name in apostroph for e.g.: "'Keystation Mini 32'"
-midiDeviceName = "'Midi Through'"
+#midiDeviceName = "'Midi Through'"
+midiDeviceName = "'USB-MIDI'"
 
 # ALSA MIDI device port/client number (adapt).
 # Identify by running 'aconnect -i' on console.
 # Is updated automatically in newer versions of StartSamplePiano.py
-midiClient = 24
+#midiClient = 24
+midiDeviceNumber = 24
 
-# Absolute path to audio files. Allows you to start the script from anywhere.
+# Absolute path to audio files. Allows you to start the script from anywhere. Don't forget the "/" at the end of the path!
+#soundDir = '/home/ubuntu-mate/SamplePiano/sounds/'
 soundDir = '/home/pi/SamplePiano/sounds/'
 
 # Identify key/note indices by running 'aseqdump -p <client_number>' on console
@@ -41,7 +44,7 @@ polyphony = 2
 startupDelay = 5 # seconds
 
 # End program when this note is pressed
-exitNote = 36 # use -1 or -2 to disable
+exitNote = -2 # use -1 or -2 to disable
 
 ''' END '''
 
