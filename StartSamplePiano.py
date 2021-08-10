@@ -48,7 +48,7 @@ def isNoteOn(_midiCmd):
 
 
 if '__main__' == __name__:
-    sleep(st.startupDelay)
+    sleep(st.startupDelay) # wait for RaspPi to fully boot
 
     myPiano  = sp.SamplePiano( st.sampleTable,
                                st.polyphony,
