@@ -15,7 +15,9 @@
 #     client 24: 'Keystation Mini 32' [type=kernel,card=1]
 # Keep name in apostroph for e.g.: "'Keystation Mini 32'"
 #midiDeviceName = "'Midi Through'"
-midiDeviceName = "'USB-MIDI'"
+#midiDeviceName = "'USB-MIDI'"
+#midiDeviceName = "'SmartPAD MIDI 1 ' "
+midiDeviceName = "SmartPAD"
 
 # ALSA MIDI device port/client number (adapt).
 # Identify by running 'aconnect -i' on console.

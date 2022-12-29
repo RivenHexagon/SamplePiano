@@ -34,17 +34,29 @@ class AconnectParser:
         return outputAsString
 
 
+    def getSeparateLines(self, _outStr):
+        lines = _outStr.split("\n")
+        print("lines ", lines)
+        return lines
+
+
+    def findLineOfMidiDevice(self, _device, _lines):
+        for line in _lines:
+            print("line: ", line)
+            if self.lineContainesWords([_device], line):
+                return line
+
+        print( "Device", _device, "not found" )
+        return None
+
+
     def lineContainesWords(self, _keyWords, _line):
         for keyWord in _keyWords:
+            print("keyword: ", keyWord)
             findCount = _line.find( keyWord )
             if -1 != findCount:
                 return True
         return False
-
-
-    def getSeparateLines(self, _outStr):
-        lines = _outStr.split("\n")
-        return lines
 
 
     def getDeviceNumberFromLine(self, _line):
@@ -52,15 +64,6 @@ class AconnectParser:
         # [:-1] ommits ":" after device number
         deviceNumber = int( segments[1][:-1] )
         return deviceNumber
-
-
-    def findLineOfMidiDevice(self, _device, _lines):
-        for line in _lines:
-            if self.lineContainesWords([_device], line):
-                return line
-
-        print( "Device", _device, "not found" )
-        return None
 
 
 if '__main__' == __name__:
