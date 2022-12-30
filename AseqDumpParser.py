@@ -10,29 +10,35 @@
  *   Aseqdump is a linux tool that logs incoming MIDI commands to the console.
 '''
 
-from queue import Queue
+import subprocess
 import sampleTable as st
 
 
 class AseqDumpParser:
 
-    def __init__(self):
-        self.midiCommandQ = Queue()
+    def __init__(self, _midiClient):
         self.midiCommand  = {}
-
+        aseqDumpArgs      = ["aseqdump", "-p", str(_midiClient)]
+        self.popen        = subprocess.Popen( aseqDumpArgs,
+                            stdout=subprocess.PIPE,
+                            universal_newlines=True )
+    
 
     def getNextMidiCommand(self):
-        return self.midiCommandQ.get()
+        for stdout_line in iter( self.popen.stdout.readline, b"" ):
+            if self.parseLineAndQueueMidiCmd( stdout_line ):
+                return self.midiCommand
+        # FIXME use prt unsubscribed
 
 
     def parseLineAndQueueMidiCmd(self, _line):
         if self.lineContainesWords( ["Waiting", "Source"], _line ):
-            return # line is a headline after startup, not a midi cmd
+            return False# line is a headline after startup, not a midi cmd
 
         lineSegments = self.getLineSegments( _line )
         self.getMidiCmd( lineSegments )
-
-        self.midiCommandQ.put( self.midiCommand )
+        return True
+        #self.midiCommandQ.put( self.midiCommand )
 
 
     def lineContainesWords(self, _keyWords, _line):
@@ -92,39 +98,10 @@ class AseqDumpParser:
 
 if '__main__' == __name__:  # for testing purposes
 
-    import subprocess
-    import threading
+    myParser = AseqDumpParser( st.midiDeviceNumber )
 
-    def executeCmdAndProcessStdout(_cmd, _parserFunct):
-        popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
-                                  universal_newlines=True )
-
-        for stdout_line in iter( popen.stdout.readline, "" ):
-            #print( "stdout line:", stdout_line, end="" )
-            _parserFunct( stdout_line )
-
-        popen.stdout.close()
-        return_code = popen.wait()
-
-        if return_code:
-            raise subprocess.CalledProcessError(return_code, _cmd)
-
-
-    def startAseqDump(_targetFunct, _parserFunct, _midiClient):
-        aseqDumpArgs = ["aseqdump", "-p", str(_midiClient)]
-        aseqDump = threading.Thread( target=_targetFunct,
-                                     args=(aseqDumpArgs, _parserFunct) )
-        aseqDump.daemon = True
-        aseqDump.start()
-        return aseqDump
-
-
-    myParser = AseqDumpParser()
-    aseqDump = startAseqDump( executeCmdAndProcessStdout, 
-                              myParser.parseLineAndQueueMidiCmd,
-                              st.midiDeviceNumber ) # identify with 'aconnect -i' on console
     while True:
-        midiCmd = myParser.midiCommandQ.get()
+        midiCmd = myParser.getNextMidiCommand()
         print( midiCmd )
 
 ''' END '''

@@ -11,7 +11,6 @@
 '''
 
 import subprocess
-import threading
 from time import sleep
 import sys
 
@@ -24,35 +23,12 @@ import AconnectParser as acp
 def autoSetupMidiDeviceNumber( _midiDevName ):
     aConnectOutput = subprocess.run( ['aconnect', '-i'],
                           stdout=subprocess.PIPE )
-    midiDevNumber  = myAcp.fetchDeviceNumber( st.midiDeviceName,
+    myAcp          = acp.AconnectParser()
+    midiDevNumber  = myAcp.fetchDeviceNumber( _midiDevName,
                                               aConnectOutput )
     if midiDevNumber:
         print(_midiDevName, "has MIDI device number:", midiDevNumber)
-        st.midiDeviceNumber = midiDevNumber
-
-
-def executeCmdAndProcessStdout(_cmd, _parserFunct):
-    popen = subprocess.Popen( _cmd, stdout=subprocess.PIPE,
-                              universal_newlines=True )
-
-    for stdout_line in iter( popen.stdout.readline, "" ):
-        #print( "stdout line:", stdout_line, end="" )
-        _parserFunct( stdout_line )
-
-    popen.stdout.close()
-    return_code = popen.wait()
-
-    if return_code:
-        raise subprocess.CalledProcessError(return_code, _cmd)
-
-
-def startAseqDump(_targetFunct, _parserFunct, _midiClient):
-    aseqDumpArgs = ["aseqdump", "-p", str(_midiClient)]
-    aseqDump = threading.Thread( target=_targetFunct,
-                                 args=(aseqDumpArgs, _parserFunct) )
-    aseqDump.daemon = True # kills thread on sys.exit()
-    aseqDump.start()
-    return aseqDump
+        return midiDevNumber
 
 
 def isNoteOn(_midiCmd):
@@ -60,18 +36,15 @@ def isNoteOn(_midiCmd):
 
 
 if '__main__' == __name__:
+    #FIXME use https://pypi.org/project/alsa-midi/
     sleep(st.startupDelay) # wait for RaspPi to fully boot
 
-    myPiano  = sp.SamplePiano( st.sampleTable,
-                               st.polyphony,
-                               st.exitNote )
-    myParser = adp.AseqDumpParser()
-    myAcp    = acp.AconnectParser()
+    midiDevNumber = autoSetupMidiDeviceNumber( st.midiDeviceName )
+    myParser      = adp.AseqDumpParser( midiDevNumber )
+    myPiano       = sp.SamplePiano( st.sampleTable,
+                                    st.polyphony,
+                                    st.exitNote )
 
-    autoSetupMidiDeviceNumber( st.midiDeviceName )
-    aseqDump = startAseqDump( executeCmdAndProcessStdout, 
-                              myParser.parseLineAndQueueMidiCmd,
-                              st.midiDeviceNumber )
     sleep(1)    
     myPiano.evalNoteAndPlaySound( 0 )
 
