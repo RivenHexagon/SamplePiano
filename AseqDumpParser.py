@@ -11,6 +11,7 @@
 '''
 
 from queue import Queue
+import sampleTable as st
 
 
 class AseqDumpParser:
@@ -121,7 +122,7 @@ if '__main__' == __name__:  # for testing purposes
     myParser = AseqDumpParser()
     aseqDump = startAseqDump( executeCmdAndProcessStdout, 
                               myParser.parseLineAndQueueMidiCmd,
-                              28 ) # identify with 'aconnect -i' on console
+                              st.midiDeviceNumber ) # identify with 'aconnect -i' on console
     while True:
         midiCmd = myParser.midiCommandQ.get()
         print( midiCmd )

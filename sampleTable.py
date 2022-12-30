@@ -31,10 +31,10 @@ soundDir = '/home/pi/SamplePiano/sounds/'
 
 # Identify key/note indices by running 'aseqdump -p <client_number>' on console
 # and act on your MIDI keyboard.
-sampleTable = { 48: soundDir + 'cat-meow.wav', 
-                50: soundDir + 'dog-barking.wav',
-                52: soundDir + 'cow-moos.wav',
-                53: soundDir + 'ringing.wav',
+sampleTable = { 4: soundDir + 'cat-meow.wav', 
+                3: soundDir + 'dog-barking.wav',
+                2: soundDir + 'cow-moos.wav',
+                1: soundDir + 'ringing.wav',
                  0: soundDir + 'unit-ready.wav',
                 -1: soundDir + 'shutdown.wav' }
 

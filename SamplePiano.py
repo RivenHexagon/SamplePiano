@@ -54,7 +54,7 @@ class SamplePiano:
             sample = self.soundTable[_noteIndex]
             #sample.play()
             #print("Playing sample for Note", _noteIndex)
-            print("Playing ", sample, " for Note ", _noteIndex)
+            print("Playing", sample, "for Note", _noteIndex)
         except:
             print("No sample for Note", _noteIndex)
 
