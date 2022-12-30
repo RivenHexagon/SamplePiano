@@ -37,10 +37,10 @@ class SamplePiano:
 
         for noteIndex in _sampleTable:
             filename = _sampleTable[noteIndex]
-            #print(filename)
+            print(filename)
             try:
-                #self.soundTable[noteIndex] = mixer.Sound(filename)
-                self.soundTable[noteIndex] = filename
+                self.soundTable[noteIndex] = mixer.Sound(filename)
+                #self.soundTable[noteIndex] = filename
                 print(" Note", noteIndex, "plays", filename)
             except:
                 print("Invalid file")
@@ -52,9 +52,9 @@ class SamplePiano:
         self.checkExitOnNote( _noteIndex )
         try:
             sample = self.soundTable[_noteIndex]
-            #sample.play()
-            #print("Playing sample for Note", _noteIndex)
-            print("Playing", sample, "for Note", _noteIndex)
+            sample.play()
+            print("Playing sample for Note", _noteIndex)
+            #print("Playing", sample, "for Note", _noteIndex)
         except:
             print("No sample for Note", _noteIndex)
 
