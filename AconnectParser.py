@@ -36,13 +36,13 @@ class AconnectParser:
 
     def getSeparateLines(self, _outStr):
         lines = _outStr.split("\n")
-        print("lines ", lines)
+        #print("lines ", lines)
         return lines
 
 
     def findLineOfMidiDevice(self, _device, _lines):
         for line in _lines:
-            print("line: ", line)
+            #print("line: ", line)
             if self.lineContainesWords([_device], line):
                 return line
 
@@ -52,7 +52,6 @@ class AconnectParser:
 
     def lineContainesWords(self, _keyWords, _line):
         for keyWord in _keyWords:
-            print("keyword: ", keyWord)
             findCount = _line.find( keyWord )
             if -1 != findCount:
                 return True

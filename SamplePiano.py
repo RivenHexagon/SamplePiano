@@ -37,13 +37,12 @@ class SamplePiano:
 
         for noteIndex in _sampleTable:
             filename = _sampleTable[noteIndex]
-            print(filename)
             try:
                 self.soundTable[noteIndex] = mixer.Sound(filename)
                 #self.soundTable[noteIndex] = filename
                 print(" Note", noteIndex, "plays", filename)
             except:
-                print("Invalid file")
+                print("Invalid file", filename )
 
         print(" ...done\n")
 

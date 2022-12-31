@@ -19,16 +19,30 @@ import SamplePiano as sp
 import AseqDumpParser as adp
 import AconnectParser as acp
 
+def fetchMidiClientId():
+    autoClientId = autoFetchMidiClientId( st.midiDeviceName )
+    if autoClientId:
+        return autoClientId
+    else:
+        print("Using manually defined MIDI client id", st.midiClientId)
+        return st.midiClientId
 
-def autoSetupMidiDeviceNumber( _midiDevName ):
+
+def autoFetchMidiClientId( _midiDevName ):
+    if None == _midiDevName:
+        return None
+
     aConnectOutput = subprocess.run( ['aconnect', '-i'],
                           stdout=subprocess.PIPE )
     myAcp          = acp.AconnectParser()
-    midiDevNumber  = myAcp.fetchDeviceNumber( _midiDevName,
+    midiClientId   = myAcp.fetchDeviceNumber( _midiDevName,
                                               aConnectOutput )
-    if midiDevNumber:
-        print(_midiDevName, "has MIDI device number:", midiDevNumber)
-        return midiDevNumber
+    if midiClientId:
+        print(_midiDevName, "has MIDI client id:", midiClientId)
+        return midiClientId
+    else:
+        print("Auto fetch MIDI client id failed")
+        return None
 
 
 def isNoteOn(_midiCmd):
@@ -38,9 +52,10 @@ def isNoteOn(_midiCmd):
 if '__main__' == __name__:
     #FIXME use https://pypi.org/project/alsa-midi/
     sleep(st.startupDelay) # wait for RaspPi to fully boot
+    print("")
 
-    midiDevNumber = autoSetupMidiDeviceNumber( st.midiDeviceName )
-    myParser      = adp.AseqDumpParser( midiDevNumber )
+    midiClientId = fetchMidiClientId()
+    myParser      = adp.AseqDumpParser( midiClientId )
     myPiano       = sp.SamplePiano( st.sampleTable,
                                     st.polyphony,
                                     st.exitNote )
