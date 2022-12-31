@@ -1,5 +1,5 @@
 # SamplePiano
-This Python3 script reads **MIDI** data on Linux via aseqdump from a MIDI device and **plays** corresponding **audio samples** using the pygame mixer module. You can use it for example to play audio files with a MIDI keyboard.
+This Python3 script reads **MIDI** data on Linux system via *aseqdump* from a MIDI device and **plays** corresponding **audio samples** using the pygame mixer module. You can use it for example to play audio files with a MIDI keyboard.
 
 ## Edit sampleTable.py
 
@@ -10,7 +10,7 @@ Your MIDI device is adressed by its **MIDI client id**. Unfortunately the client
 
 The `midiClientId` can be fetched **automatically** if you provide the parameter `midiDeviceName`.
 
-To identify the **name** of your MIDI controller - as well as its client id - use the helper program `aconnect` on the **console** of the system where you wanna use the script on:
+To identify the **name** of your MIDI controller - as well as its client id - use the helper program `aconnect` on the **console**:
 
 `$ aconnect -i`
 
@@ -26,9 +26,10 @@ The output may look like this:
 
 Exit the program with `Ctrl+C`.
 
-Use the **name string** after the client id and keep the **quotes**, for e.g.: `midiDeviceName = "'Keystation Mini 32'"`.
+Use the **name string** after the client id and keep the **quotes**, for e.g.:  
+`midiDeviceName = "'Keystation Mini 32'"`.
 
-Alternatively you can provide the client id **manually**: `midiClientId = 24`. This parameter will only be **recognized** if you **define** `midiDeviceName = None`.
+Alternatively you can provide the client id **manually**: `midiClientId = 24`. This parameter will only be **recognized** if you **define** `midiDeviceName = None` though.
 
 ### Edit the sample table
 To identify the **note numbers** of your MIDI keyboard's keys, run the helper program `aseqdump`. Give the **client number** of your MIDI devicde as a **parameter** and act on some keys and controllers:
@@ -46,7 +47,7 @@ The output may look like this:
 
 Exit the program with `Ctrl+C`.
 
-Now edit the **sample table** to **match** the **keys** with the corresponding **audio samples** you wanna play on key press.
+Now edit the **sample table** to **match** the **keys** with the corresponding **audio samples** you wanna play on key press:
 
     sampleTable = { 47: soundDir + 'cat-meow.wav',
                     48: soundDir + 'dog-barking.wav',
