@@ -1,12 +1,12 @@
 # SamplePiano
-This Python3 script reads **MIDI** data on Linux system via *aseqdump* from a MIDI device and **plays** corresponding **audio samples** using the pygame mixer module. You can use it for example to play audio files with a MIDI keyboard.
+This Python3 script reads **MIDI** data on Linux systems via *aseqdump* from a MIDI device and **plays** corresponding **audio samples** using the *pygame* mixer module. You can use it for example to play audio files with a MIDI keyboard.
 
 ## Edit sampleTable.py
 
 The file `sampleTable.py` needs to be edited in order to **identify** your **MIDI device** and to **assign** the **audio files** to the correspondig keys on your MIDI input device.
 
 ### Identify the MIDI client id
-Your MIDI device is adressed by its **MIDI client id**. Unfortunately the client id may be subject to **change** after you reboot the system. This may happen if you run the script on a headless Raspberry Pi (with no monitor and input devices).
+Your MIDI device is adressed by its **MIDI client id**. Unfortunately the client id may be subject to **change** after you reboot the system. This may happen if you run the script on a **headless** *Raspberry Pi* (with no monitor and input devices).
 
 The `midiClientId` can be fetched **automatically** if you provide the parameter `midiDeviceName`.
 
