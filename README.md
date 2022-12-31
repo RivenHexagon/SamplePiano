@@ -10,7 +10,7 @@ Your MIDI device is adressed by its **MIDI client id**. Unfortunately the client
 
 The `midiClientId` can be fetched **automatically** if you provide the parameter `midiDeviceName`.
 
-To identify the **name** of your MIDI controller - as well as its client id - use the helper program `aconnect` on the **console**:
+To **identify** the **name** of your MIDI controller - as well as its client id - use the helper program `aconnect` on the **console**:
 
 `$ aconnect -i`
 
@@ -32,7 +32,7 @@ Use the **name string** after the client id and keep the **quotes**, for e.g.:
 Alternatively you can provide the client id **manually**: `midiClientId = 24`. This parameter will only be **recognized** if you **define** `midiDeviceName = None` though.
 
 ### Edit the sample table
-To identify the **note numbers** of your MIDI keyboard's keys, run the helper program `aseqdump`. Give the **client number** of your MIDI devicde as a **parameter** and act on some keys and controllers:
+To **identify** the **note numbers** of your MIDI keyboard's keys, run the helper program `aseqdump`. Give the **client number** of your MIDI devicde as a **parameter** and act on some keys and controllers:
 
 `$ aseqdump -p 24`
 
@@ -55,6 +55,9 @@ Now edit the **sample table** to **match** the **keys** with the corresponding *
                     50: soundDir + 'ringing.wav',
                     0:  soundDir + 'unit-ready.wav',
                    -1:  soundDir + 'shutdown.wav' }
+
+You can **provide** an **absolute path** to the **audio files** on your system. This allows you to start the script from **anywhere**, hence the audio files and the script don't have to be in the same folder. Don't forget the `/` at the end of the path!  
+`soundDir = '/home/pi/SamplePiano/sounds/'`
 
 ### Polyphony
 
